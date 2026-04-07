@@ -1,0 +1,55 @@
+{
+  "name": "ecommerce-microservices",
+  "version": "1.0.0",
+  "description": "E-commerce microservices platform with Kubernetes, OpenShift, and Istio",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:user\" \"npm run dev:product\" \"npm run dev:order\" \"npm run dev:gateway\" \"npm run dev:notification\"",
+    "dev:user": "cd services/user-service && npm run dev",
+    "dev:product": "cd services/product-service && npm run dev",
+    "dev:order": "cd services/order-service && npm run dev",
+    "dev:gateway": "cd services/api-gateway && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "build": "npm run build:user && npm run build:product && npm run build:order && npm run build:gateway && npm run build:notification",
+    "build:user": "cd services/user-service && npm run build",
+    "build:product": "cd services/product-service && npm run build",
+    "build:order": "cd services/order-service && npm run build",
+    "build:gateway": "cd services/api-gateway && npm run build",
+    "build:notification": "cd services/notification-service && npm run build",
+    "test": "npm run test:user && npm run test:product && npm run test:order && npm run test:gateway && npm run test:notification",
+    "test:user": "cd services/user-service && npm test",
+    "test:product": "cd services/product-service && npm test",
+    "test:order": "cd services/order-service && npm test",
+    "test:gateway": "cd services/api-gateway && npm test",
+    "test:notification": "cd services/notification-service && npm test",
+    "docker:build": "npm run docker:build:user && npm run docker:build:product && npm run docker:build:order && npm run docker:build:gateway && npm run docker:build:notification",
+    "docker:build:user": "cd services/user-service && docker build -t ecommerce/user-service .",
+    "docker:build:product": "cd services/product-service && docker build -t ecommerce/product-service .",
+    "docker:build:order": "cd services/order-service && docker build -t ecommerce/order-service .",
+    "docker:build:gateway": "cd services/api-gateway && docker build -t ecommerce/api-gateway .",
+    "docker:build:notification": "cd services/notification-service && docker build -t ecommerce/notification-service .",
+    "k8s:deploy": "kubectl apply -f kubernetes/",
+    "k8s:delete": "kubectl delete -f kubernetes/",
+    "istio:deploy": "kubectl apply -f istio/",
+    "istio:delete": "kubectl delete -f istio/",
+    "openshift:deploy": "oc new-project ecommerce && oc apply -f openshift/",
+    "openshift:delete": "oc delete project ecommerce"
+  },
+  "keywords": [
+    "microservices",
+    "kubernetes",
+    "openshift",
+    "istio",
+    "ecommerce",
+    "docker",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "services/*"
+  ]
+}

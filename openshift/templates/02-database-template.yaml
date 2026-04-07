@@ -1,0 +1,175 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: ecommerce-database-template
+  annotations:
+    openshift.io/display-name: "E-commerce Database Infrastructure"
+    description: "PostgreSQL, Redis, and RabbitMQ for e-commerce microservices"
+    tags: "database,postgresql,redis,rabbitmq"
+parameters:
+- name: NAMESPACE
+  displayName: Namespace
+  value: ecommerce
+  required: true
+- name: DB_PASSWORD
+  displayName: Database Password
+  generate: expression
+  from: "[a-zA-Z0-9]{16}"
+  required: true
+objects:
+# PostgreSQL Persistent Volume Claim
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: postgres-pvc
+    namespace: ${NAMESPACE}
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+# PostgreSQL Deployment
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: postgres
+    namespace: ${NAMESPACE}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: postgres
+    template:
+      metadata:
+        labels:
+          app: postgres
+      spec:
+        containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+          - containerPort: 5432
+          env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            value: ${DB_PASSWORD}
+          - name: POSTGRES_DB
+            value: postgres
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+        volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+# PostgreSQL Service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: postgres-service
+    namespace: ${NAMESPACE}
+  spec:
+    selector:
+      app: postgres
+    ports:
+    - port: 5432
+      targetPort: 5432
+# Redis Deployment
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: redis
+    namespace: ${NAMESPACE}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: redis
+    template:
+      metadata:
+        labels:
+          app: redis
+      spec:
+        containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+          - containerPort: 6379
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+# Redis Service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: redis-service
+    namespace: ${NAMESPACE}
+  spec:
+    selector:
+      app: redis
+    ports:
+    - port: 6379
+      targetPort: 6379
+# RabbitMQ Deployment
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: rabbitmq
+    namespace: ${NAMESPACE}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: rabbitmq
+    template:
+      metadata:
+        labels:
+          app: rabbitmq
+      spec:
+        containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          ports:
+          - containerPort: 5672
+          - containerPort: 15672
+          env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: admin
+          - name: RABBITMQ_DEFAULT_PASS
+            value: ${DB_PASSWORD}
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+# RabbitMQ Service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: rabbitmq-service
+    namespace: ${NAMESPACE}
+  spec:
+    selector:
+      app: rabbitmq
+    ports:
+    - port: 5672
+      targetPort: 5672
+      name: amqp
+    - port: 15672
+      targetPort: 15672
+      name: management
