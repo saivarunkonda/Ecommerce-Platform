@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { User, Mail, Phone, MapPin, Save } from 'lucide-react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../api/axios'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
@@ -20,7 +20,7 @@ function Profile() {
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 
-  const { data: profile, isLoading } = useQuery('profile', async () => {
+  const { data: profile, isLoading } = useQuery(['profile'], async () => {
     const response = await api.get('/api/users/profile')
     return response.data
   })

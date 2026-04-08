@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,9 +13,16 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('auth-storage')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      try {
+        const auth = JSON.parse(token)
+        if (auth.state?.token) {
+          config.headers.Authorization = `Bearer ${auth.state.token}`
+        }
+      } catch (error) {
+        console.error('Error parsing auth token:', error)
+      }
     }
     return config
   },
@@ -26,7 +36,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
+      // Token expired or invalid
+      localStorage.removeItem('auth-storage')
       window.location.href = '/login'
     }
     return Promise.reject(error)

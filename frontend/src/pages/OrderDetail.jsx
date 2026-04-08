@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Package, Truck, CheckCircle, Clock } from 'lucide-react'
 import api from '../api/axios'
 

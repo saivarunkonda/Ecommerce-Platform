@@ -1,10 +1,10 @@
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Package, ChevronRight } from 'lucide-react'
 import api from '../api/axios'
 
 function Orders() {
-  const { data: orders, isLoading } = useQuery('orders', async () => {
+  const { data: orders, isLoading } = useQuery(['orders'], async () => {
     const response = await api.get('/api/orders')
     return response.data.orders || []
   })

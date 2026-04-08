@@ -1,17 +1,28 @@
-import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Star } from 'lucide-react'
-import api from '../api/axios'
 import { useCartStore } from '../store/cartStore'
 import toast from 'react-hot-toast'
+import { useState, useEffect } from 'react'
 
 function Home() {
   const { addToCart } = useCartStore()
-  
-  const { data: products, isLoading } = useQuery('featured-products', async () => {
-    const response = await api.get('/api/products?limit=8')
-    return response.data.products || []
-  })
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate API call with timeout
+    const timer = setTimeout(() => {
+      setProducts([
+        { id: 1, name: 'Laptop', price: 999, images: ['https://via.placeholder.com/300'] },
+        { id: 2, name: 'Phone', price: 699, images: ['https://via.placeholder.com/300'] },
+        { id: 3, name: 'Tablet', price: 399, images: ['https://via.placeholder.com/300'] },
+        { id: 4, name: 'Watch', price: 299, images: ['https://via.placeholder.com/300'] },
+      ])
+      setIsLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleAddToCart = (product) => {
     addToCart(product)

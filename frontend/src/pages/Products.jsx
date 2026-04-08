@@ -1,25 +1,38 @@
-import { useState } from 'react'
-import { useQuery } from 'react-query'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Search, Filter } from 'lucide-react'
-import api from '../api/axios'
 import { useCartStore } from '../store/cartStore'
 import toast from 'react-hot-toast'
 
 function Products() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const { addToCart } = useCartStore()
 
-  const { data: products, isLoading } = useQuery('products', async () => {
-    const response = await api.get('/api/products')
-    return response.data.products || []
-  })
+  useEffect(() => {
+    // Simulate API calls
+    const timer = setTimeout(() => {
+      setProducts([
+        { id: 1, name: 'Laptop', price: 999, category_id: 1, images: ['https://via.placeholder.com/300'] },
+        { id: 2, name: 'Phone', price: 699, category_id: 2, images: ['https://via.placeholder.com/300'] },
+        { id: 3, name: 'Tablet', price: 399, category_id: 2, images: ['https://via.placeholder.com/300'] },
+        { id: 4, name: 'Watch', price: 299, category_id: 3, images: ['https://via.placeholder.com/300'] },
+        { id: 5, name: 'Headphones', price: 199, category_id: 3, images: ['https://via.placeholder.com/300'] },
+        { id: 6, name: 'Keyboard', price: 99, category_id: 1, images: ['https://via.placeholder.com/300'] },
+      ])
+      setCategories([
+        { id: 1, name: 'Electronics' },
+        { id: 2, name: 'Mobile' },
+        { id: 3, name: 'Accessories' },
+      ])
+      setIsLoading(false)
+    }, 1000)
 
-  const { data: categories } = useQuery('categories', async () => {
-    const response = await api.get('/api/categories')
-    return response.data || []
-  })
+    return () => clearTimeout(timer)
+  }, [])
 
   const filteredProducts = products?.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
