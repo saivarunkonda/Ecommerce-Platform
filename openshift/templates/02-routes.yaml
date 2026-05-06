@@ -1,0 +1,31 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: api-gateway-route
+  namespace: ecommerce
+spec:
+  host: api.ecommerce.example.com
+  to:
+    kind: Service
+    name: api-gateway
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frontend-route
+  namespace: ecommerce
+spec:
+  host: ecommerce.example.com
+  to:
+    kind: Service
+    name: frontend
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

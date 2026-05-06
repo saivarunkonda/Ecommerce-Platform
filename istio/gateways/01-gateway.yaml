@@ -13,13 +13,22 @@ spec:
       protocol: HTTP
     hosts:
     - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: ecommerce-gateway-https
+  namespace: ecommerce
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
   - port:
       number: 443
       name: https
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: ecommerce-tls-secret
+      credentialName: ecommerce-tls
     hosts:
-    - "ecommerce.com"
-    - "www.ecommerce.com"
+    - "*"
